@@ -1,8 +1,8 @@
-var microbe = require('microbe').App;
+var microbe = require('./../lib/microbe/App').App;
+console.log(__dirname+'/public');
+var app = new microbe(__dirname+'/public', 'http://localhost', 1130);
 
-var app = new microbe(__dirname+'public', 'http://localhost', 1130);
-
-app.configure(function(user,socket,database){
+//app.configure(function(user,socket,database){
 
 	app.add(function(api,user){
 
@@ -17,4 +17,4 @@ app.configure(function(user,socket,database){
 		}
 	);
 
-});
+//});

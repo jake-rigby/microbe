@@ -11,56 +11,62 @@
 		var isInitialised;
 
 		// hide the lougout elements straight away
-		$('.logout').hide();	
+		document.ready = function(){
 
-		// handler for the logout button
-	    $('#logoutbtn').click(function(){
-	    	if (!isInitialised) return;
-			isInitialised = false;
-			$('.logout').fadeOut(function(){
-				$('.login').fadeIn();
+			$('.logout').hide();
+
+			// handler for the logout button
+		    $('#logoutbtn').click(function(){
+		    	if (!isInitialised) return;
+				isInitialised = false;
+				$('.logout').fadeOut(function(){
+					$('.login').fadeIn();
+				});
 			});
-		});
 
-	    // try and get the user via ajax straight away
-		$.ajax({
-			type: "GET",
-			url: window.location.origin+'/user',
-			dataType: "text",
-			success : function(data) {
-				user = JSON.parse(data);
-				if (!isInitialised && socket && socket.socket.connected) onlogin();
-			}
-		});
-
-		// what to do when login is successful
-		var onlogin = function(){
-			$('.login').fadeOut(function(){
-				$('#userid').html(user.displayName);
-				$('.logout').fadeIn();
+		    // try and get the user via ajax straight away
+			$.ajax({
+				type: "GET",
+				url: window.location.origin+'/user',
+				dataType: "text",
+				success : function(data) {
+					user = JSON.parse(data);
+					if (!isInitialised && socket && socket.socket.connected) onlogin();
+				}
 			});
-			onlogin(socket,user);
-			isInitialised = true;
+
+			// what to do when login is successful
+			var onlogin = function(){
+				$('.login').fadeOut(function(){
+					$('#userid').html(user.displayName);
+					$('.logout').fadeIn();
+				});
+				//onlogin(socket,user);
+				isInitialised = true;
+			};
+
+			// connect socket.io
+			var domain = location.protocol+'//'+location.hostname+':'+location.port; // USE ORIGIN?
+			socket = io.connect(domain);
+			socket.on('connect',function(data){
+				if (!isInitialised && user) {
+					$('#msg').html('Connected to server - welcome, '+user.displayName);
+					onlogin();
+				}
+			});
+			socket.once('disconnect',function(){
+				$('#msg').html('Disconnected by server - reset the server and refresh');
+			});
 		};
-
-		// connect socket.io
-		var domain = location.protocol+'//'+location.hostname+':'+location.port; // USE ORIGIN?
-		socket = io.connect(domain);
-		socket.on('connect',function(data){
-			if (!isInitialised && user) $('#msg').html('Connected to server - welcome, '+user.displayName);
-		});
-		socket.once('disconnect',function(){
-			$('#msg').html('Disconnected by server - reset the server and refresh');
-		});
 
 	</script>
 </head>
 <body>
 
-	<button href="/auth/facebook" class="login">Facebook login</button><!-- redirects to the auth route required by passport-facebook -->
-	<button href="/auth/google" class="login">Google login</button><!-- redirects to the auth route required by passport-google -->  
+	<a href="/auth/facebook" class="login">Facebook login</a><!-- redirects to the auth route required by passport-facebook -->
+	<a href="/auth/google" class="login">Google login</a><!-- redirects to the auth route required by passport-google -->  
 	<div id="userid" class="logout"></div>
-	<button id="logoutbtn" href="/logout" class="logout">log out</button><!-- redirects to the '/logout' route required by passport -->
+	<a id="logoutbtn" href="/logout" class="logout">log out</a><!-- redirects to the '/logout' route required by passport -->
 	<div id="msg"></div>
 
 </body>
