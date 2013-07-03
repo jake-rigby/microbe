@@ -49,7 +49,6 @@
 		socket.on('connect',function(data){
 			if (!isInitialised && user) $('#msg').html('Connected to server - welcome, '+user.displayName);
 		});
-
 		socket.once('disconnect',function(){
 			$('#msg').html('Disconnected by server - reset the server and refresh');
 		});
