@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>microbe example</title>
+	<script type="text/javascript" src="scripts/jq.js"></script>
+	<script type="text/javascript" src="scripts/socket.io.js"></script>
+	<script type="text/javascript">
+		
+		var socket;
+		var user;
+		var isInitialised;
+
+		// hide the lougout elements straight away
+		$('.logout').hide();	
+
+		// handler for the logout button
+	    $('#logoutbtn').click(function(){
+	    	if (!isInitialised) return;
+			isInitialised = false;
+			$('.logout').fadeOut(function(){
+				$('.login').fadeIn();
+			});
+		});
+
+	    // try and get the user via ajax straight away
+		$.ajax({
+			type: "GET",
+			url: window.location.origin+'/user',
+			dataType: "text",
+			success : function(data) {
+				user = JSON.parse(data);
+				if (!isInitialised && socket && socket.socket.connected) onlogin();
+			}
+		});
+
+		// what to do when login is successful
+		var onlogin = function(){
+			$('.login').fadeOut(function(){
+				$('#userid').html(user.displayName);
+				$('.logout').fadeIn();
+			});
+			onlogin(socket,user);
+			isInitialised = true;
+		};
+
+		// connect socket.io
+		var domain = location.protocol+'//'+location.hostname+':'+location.port; // USE ORIGIN?
+		socket = io.connect(domain);
+		socket.on('connect',function(data){
+			if (!isInitialised && user) $('#msg').html('Connected to server - welcome, '+user.displayName);
+		});
+
+		socket.once('disconnect',function(){
+			$('#msg').html('Disconnected by server - reset the server and refresh');
+		});
+
+	</script>
+</head>
+<body>
+
+	<button href="/auth/facebook" class="login">Facebook login</button><!-- redirects to the auth route required by passport-facebook -->
+	<button href="/auth/google" class="login">Google login</button><!-- redirects to the auth route required by passport-google -->  
+	<div id="userid" class="logout"></div>
+	<button id="logoutbtn" href="/logout" class="logout">log out</button><!-- redirects to the '/logout' route required by passport -->
+	<div id="msg"></div>
+
+</body>
+</html>

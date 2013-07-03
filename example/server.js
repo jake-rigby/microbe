@@ -11,9 +11,10 @@ app.configure(function(user,socket,database){
 			api.handler = function(apiData, userData, apiUserData, clientData, callback){ // <-- set assumes we persist to the namespace indicated by the api name
 				var gotdbvalue = get;
 				var result = data;
+				// modify the values apiData, userData and apiUserData //
 				callback(apiData, userData, apiUserData);
 			};
 		}
 	);
-	
+
 });
