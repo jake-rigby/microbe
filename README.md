@@ -12,7 +12,7 @@ https://github.com/MSOpenTech/redis (http://redis.io/)
 
 ##Install
 
-<code>npm microbe</code>
+<code>npm install microbe</code>
 
 ##Run
 
