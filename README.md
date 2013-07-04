@@ -21,21 +21,28 @@ http://redis.io/ - a fast,no-sql, in-memory store like Memcached
 
 To install it download and install node and redis. Navigate in the node command promt to a new /microbeproject folder and execute :
 
-npm microbe
+<code>npm microbe</code>
 
 
-To run it, create a file in the project called server.js containing :
-
-var microbe = require('microbe').microbe;
-var app = new microbe(__dirname+'/node_modules/microbe/example/public', 'http://localhost', 1130);
-
-
-, and in the command prompt execute:
-
-node server.js
+To run it, create a file in the project called server.js :
+<code>
+<br>var microbe = require('microbe').microbe;
+<br>var app = new microbe(__dirname+'/node_modules/microbe/example/public', 'http://localhost', 1130);
+</code>
 
 
-Browse to http://localhost:1130/
+In a new command promt, navigate to where you unzipped redis to and run
+
+<code>redis-server.exe</code>
+
+Now in the first command prompt execute:
+
+<code>node server.js</code>
+
+
+Browse to 
+
+http://localhost:1130/
 
 
 To view the module on npm go to https://npmjs.org/package/microbe
