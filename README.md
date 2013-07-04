@@ -26,3 +26,5 @@ Create a server.js :
 Make sure redis is accessible from your node process. execute:
 
 <code>node server.js</code>
+
+On npm : https://npmjs.org/package/microbe 
