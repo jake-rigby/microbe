@@ -36,3 +36,6 @@ node server.js
 
 
 Browse to http://localhost:1130/
+
+
+To view the module on npm go to https://npmjs.org/package/microbe
