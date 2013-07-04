@@ -1,5 +1,5 @@
 var microbe = require('./../lib/microbe/microbe').microbe;
-var app = new microbe(__dirname+'/public', 'http://localhost', 1130, '390313717746623', '0730cc9a6555cddc6f155d018e35bf7f');
+var app = new microbe(__dirname+'/public', 'http://localhost', 1130, 'fbappid', 'fbappsecret');
 
 /*
 app.add(function(api,user){
