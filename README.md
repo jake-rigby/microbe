@@ -12,19 +12,22 @@ https://github.com/MSOpenTech/redis (http://redis.io/)
 
 ##Install
 
-<code>npm install microbe</code>
+	npm install microbe
 
 ##Run
 
 Create a server.js :
-<code>
-<br>var microbe = require('microbe').microbe;
-<br>var app = new microbe(__dirname+'/node_modules/microbe/example/public', 
-<br>'http://localhost', 6666, yourFacebookAppId, yourFacebookAppSecret);
-</code>
+
+	var microbe = require('microbe').microbe;
+	var app = new microbe(__dirname+'/node_modules/microbe/example/public', 
+						  'http://localhost', 
+						  6666, // <-- port
+						  yourFacebookAppId, 
+						  yourFacebookAppSecret);
+
 
 Make sure redis is accessible from your node process. execute:
 
-<code>node server.js</code>
+	node server.js
 
 On npm : https://npmjs.org/package/microbe 
