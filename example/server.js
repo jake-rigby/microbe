@@ -1,15 +1,5 @@
 var microbe = require('./../lib/microbe/microbe').microbe;
 var app = new microbe(__dirname+'/public', 'http://localhost', 1130, 'fbappid', 'fbappsecret');
 
-/*
-app.add(function(api,user){
 
-		api.name = 'example_api';
-
-		api.handler = function(apiData, userData, apiUserData, clientData, callback){ // <-- set assumes we persist to the namespace indicated by the api name
-			// modify the values apiData, userData and apiUserData //
-			callback(apiData, userData, apiUserData);
-		};
-	};
-);
-*/
+//app.add(require('api.js').api
