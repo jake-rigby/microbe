@@ -43,7 +43,7 @@ continue in server.js :
 		});
 	});
 
-microbe uses redisConnect to store session information, but you can just create another redis client here for whatever your needs. Updating the previuos method :
+microbe uses redisConnect to store session information, but you can just create another redis client here for whatever your needs. Updating the previous method :
 
 	var redis = require('redis').createClient();
 
