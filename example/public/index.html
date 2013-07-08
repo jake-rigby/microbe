@@ -41,22 +41,42 @@
 					$('#userid').html(user.displayName);
 					$('.logout').fadeIn();
 				});
-				//onlogin(socket,user);
 				isInitialised = true;
 			};
+
+			// add a thing to a thing
+			$('#btn').click(function(){
+				var item = $('#inp').val();
+				socket.emit('add_thing', item);
+				socket.emit('get_things');
+				$('#inp').val('');
+			});
+
 
 			// connect socket.io
 			var domain = location.protocol+'//'+location.hostname+':'+location.port; // USE ORIGIN?
 			socket = io.connect(domain);
+
+			// map socket events
 			socket.on('connect',function(data){
 				if (!isInitialised && user) {
 					$('#msg').html('Connected to server - welcome, '+user.displayName);
 					onlogin();
+					socket.emit('get_things');
 				}
 			});
+
+			socket.on('got_things', function(things){
+				$('#out').empty();
+				$(things).each(function(idx, thing){
+					$('#out').append($(document.createElement('li')).html(thing));
+				})
+			});
+
 			socket.once('disconnect',function(){
 				$('#msg').html('Disconnected by server - reset the server and refresh');
 			});
+
 		};
 
 	</script>
@@ -68,6 +88,9 @@
 	<div id="userid" class="logout"></div>
 	<a id="logoutbtn" href="/logout" class="logout">log out</a><!-- redirects to the '/logout' route required by passport -->
 	<div id="msg"></div>
+	<input id="inp" class="logout"/>
+	<button id="btn" class="logout">add</button>
+	<ul id="out" class="logout"></ul>
 
 </body>
 </html>
