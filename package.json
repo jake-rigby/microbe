@@ -1,7 +1,7 @@
 {
   "name": "microbe",
   "description": "Hooks up express js, passport.io, socket.io and redis. Requires Redis server. Exposes method to add socket.io api's",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "dependencies": {
     "express": "3.1.0",
