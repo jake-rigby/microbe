@@ -14,7 +14,8 @@
     "passport-google": "*",
     "passport-local": "*",
     "passport-facebook": "*",
-    "passport.socketio": "*"
+    "passport.socketio": "*",
+    "konphyg": "*"
   },
   "main": "lib/microbe/microbe.js",
   "directories": {
