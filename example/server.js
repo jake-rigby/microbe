@@ -1,5 +1,11 @@
 var microbe = require('./../lib/microbe/microbe').microbe;
+
+var appConfig = { location : "http://localhost", port : 1130 };
+var fbConfig = { name : "yourAppName", id : "youFbAppId", secret : "yourFbAppSecret" };
+var dbConfig = { host : "127.0.0.1", port : "6379", pass : "" }; 
+
 var app = new microbe(__dirname+'/public', 'http://localhost', 1130, 'fbappid', 'fbappsecret');
+
 var redis = require('redis').createClient();
 
 
