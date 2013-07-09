@@ -19,11 +19,12 @@ https://github.com/MSOpenTech/redis (http://redis.io/)
 Create a server.js :
 
 	var microbe = require('microbe').microbe;
-	var app = new microbe(__dirname+'/node_modules/microbe/example/public', 
-						  'http://localhost', 
-						  6666, // <-- port
-						  yourFacebookAppId, 
-						  yourFacebookAppSecret);
+	
+	var appConfig = { location : "http://localhost", port : 1130 };
+	var fbConfig = { name : "yourAppName", id : "youFbAppId", secret : "yourFbAppSecret" };
+	var dbConfig = { host : "127.0.0.1", port : "6379", pass : "" }; // <-- default redis host and port
+	
+	var app = new microbe(__dirname+'/node_modules/microbe/example/public', appConfig, dbConfig, fbConfig);
 
 
 Make sure redis is accessible from your node process. execute:
@@ -45,7 +46,8 @@ continue in server.js :
 
 microbe uses redisConnect to store session information, but you can just create another redis client here for whatever your needs. Updating the previous method :
 
-	var redis = require('redis').createClient();
+	var redis = require('redis').createClient(redisConfig.port,redisConfig.host,{no_ready_check: true});
+	redis.auth(redisConfig.pass, function(){}); // <-- not required for a local store
 
 	app.add(function(socket, user){
 
