@@ -11,6 +11,7 @@
   "license": "BSD",
   "dependencies": {
     "redis": "~0.8.4",
-    "microbe": "~0.1.9"
+    "microbe": "~0.1.9",
+    "dependable": "0.2.5"
   }
 }

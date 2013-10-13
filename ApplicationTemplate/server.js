@@ -10,7 +10,7 @@ var redis = require('redis').createClient(redisConfig.port,redisConfig.host,{no_
 redis.auth(redisConfig.pass, function(){});
 
 // derive the port and url
-var port = process.env.PORT ? process.env.PORT : 8080;
+var port = process.env.PORT ? process.env.PORT : 1131;
 var url = process.env.URL ? process.env.URL : 'http://'+require('./tools/utils.js').myip()+':'+port;
 
 // microbe
