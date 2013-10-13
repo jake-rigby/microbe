@@ -70,7 +70,7 @@ microbe uses redisConnect to store session information, and therefore requires a
 		});
 	});
 	
-##Add RESTful api
+##Add REST api
 
 	application.app.get('/messages',function(req,res){
 		var namespace = 'microbe-example:'+req.session.passport.user.identifier+':messages'; // <-- the user credentials are available in the session cookie
@@ -81,6 +81,8 @@ microbe uses redisConnect to store session information, and therefore requires a
 	});
 	
 ##Application Template
+
+The application template adds an mvp client built with angular.js and Twitter Bootstrap. Copy the files to a new project and look for 'ApplicationName' prompts.
 
 
 
