@@ -1,0 +1,16 @@
+{
+  "name": "ApplicationTemplate",
+  "version": "0.0.0",
+  "description": "Application template",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Jake Rigby",
+  "license": "BSD",
+  "dependencies": {
+    "redis": "~0.8.4",
+    "microbe": "~0.1.9"
+  }
+}

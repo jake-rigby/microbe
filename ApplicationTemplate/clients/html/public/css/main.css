@@ -1,0 +1,177 @@
+body { 
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box; /* Opera/IE 8+ */
+}
+
+a:hover {
+ cursor:pointer;
+ text-decoration: none !important;
+}
+
+.jumbotron.main {
+  height: 334px;
+}
+
+/* leaflet */ 
+.angular-leaflet-map {
+  height: 600px;
+}
+
+/* tools */
+
+/* icons */
+i {
+  margin: 1em;
+}
+
+/* bootstrap grid */
+.pad{
+  padding-top: 2em;
+  padding-bottom: 2em;
+}
+
+.padsmall{
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.padtop {
+  padding-top: 20px;
+}
+
+.padbottom {
+  padding-bottom: 100px;
+}
+
+.padright {
+  padding-right: 20px;
+}
+
+.padleft {
+  padding-left: 20px;
+}
+
+.row.hero{
+  padding-top: 7em;
+  padding-bottom: 7em;
+}
+
+.row.hero-bottom{
+  padding-bottom: 10em;
+}
+
+.row.section{
+  padding-top: 4em;
+  padding-bottom: 4em;
+}
+
+.row.fullwidth{
+  min-width: 500px;
+}
+
+.row.fullheight{
+  height: 100%;
+}
+
+
+/* components */
+img.media-object{
+  max-width: 64px;
+  max-height: 64px;
+}
+
+ul.nobullets{
+  list-style-type: none;
+}
+
+/* bootstrap color */
+hr {
+  border-top-color:#ffffff;
+}
+
+.bg_white {
+  background-color: #ffffff;
+}
+
+.bg_black {
+  background-color: #000000;
+}
+
+.btn-info {
+   background-color: #000000;
+   color: #ffffff; 
+   border-color: #000000;
+}
+
+.disabled{
+  opacity: 1;
+}
+
+/* colour scheme d */
+.bg_d{
+  background-color: #2a2a2a;
+}
+
+.lead_d{
+  color:#ffffff !important; /* important for h1 tags*/
+}
+
+.copy_d{
+  color:#91a0a4;
+}
+
+.embed_d{
+  color:#000000;
+}
+
+.bd_d{
+  border-color:#ffffff;
+}
+
+.bd_bg_d{
+  border-color: #2a2a2a;
+}
+
+.bd_embed_d{
+  border-color: #000000;
+}
+
+.bg_embed_d{
+  background-color: #000000;
+}
+
+.bg_copy_d{
+  background-color: #91a0a4;
+}
+
+
+.splash {
+  display: block;
+  width: 100%;
+}
+
+.splash-container {
+  height: 300px;
+  width: 100%; 
+  overflow: hidden;
+}
+
+/* inline list problme with bootstrap http://stackoverflow.com/questions/10906341/how-to-display-a-list-inline-using-twitters-bootstrap*/
+ul.inline > li, ol.inline > li {
+    display: inline-block;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+.bgimage{
+  background-color: #1a1d2a;
+  /*
+  background: url('../images/panel_bg.gif');
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;4;
+  */
+}
+

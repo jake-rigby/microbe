@@ -1,0 +1,38 @@
+<div class="container">
+
+	<!-- some example ui for a simple messenger -->
+	<div class="row pad">
+		<div class="input-group input-group-lg col-md-8 col-md-offset-2 col-xs-12" >
+			<input type="text" class="form-control input-lg bg_embed_d bd_embed_d lead_d" placeholder="message" ng-model="outgoing">
+			<div class="input-group-btn">
+				<button class="btn btn-info bg_embed_d lead_d" type="button" ng-click="send()" ng-model="button">Send</button></span>
+			</div>
+		</div>
+	</div>
+	
+	<div class="row pad">
+		<div class=" col-md-8 col-md-offset-2 col-xs-12 text-center">
+			<h2 class="lead_d">{{incoming}}</h2>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2 col-xs-12">
+			<ul class="nav nav-pills" ng-repeat="l in logs">
+				<li class="lead_d">{{l}}</li>
+			</ul> 
+		</div>
+	</div>
+
+</div>
+
+<!-- user and nav footer -->
+<div class="container" ng-controller="UserController">
+	<div class="navbar-fixed-bottom pad padright padleft bg_d">
+		<div class="pull-left lead_d">
+			{{user.displayName}}
+		</div>
+		<div class="pull-right">
+			<a href="/"><i class="icon-home"></i></a>
+		</div>
+	</div>
+</div>

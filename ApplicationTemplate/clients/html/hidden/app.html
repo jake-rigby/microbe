@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html ng-app="ApplicationName"><!-- app name -->
+	<head>
+
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=9" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+		<title>&lt;&lt;ApplicationName&gt;&gt;</title>
+		
+		<!-- css libraries -->		
+		<link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="lib/awesome-markers/leaflet.awesome-markers.css">
+		<link rel="stylesheet" type="text/css" href="lib/font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="css/main.css">
+
+	</head>
+
+	<body id="heading" class="bg_d" >
+
+		<!-- partial container view directive - requires angular-route.js -->
+		<div ng-view></div>
+		
+		<!-- js libraries -->
+		<script type="text/javascript" src="lib/jq.js"></script> 
+		<script type="text/javascript" src="lib/angular-1.2.0-rc.2/angular.js"></script>
+		<script type="text/javascript" src="lib/angular-1.2.0-rc.2/angular-route.js"></script>
+
+		<script type="text/javascript" src="lib/socket.io.js"></script>
+
+		<!-- js app -->
+		<script type="text/javascript" src="js/services.public.js"></script>
+		<script type="text/javascript" src="js/controllers.public.js"></script>
+		<script type="text/javascript" src="js/app.js"></script>
+		<script type="text/javascript" src="js/services.private.js"></script>
+		<script type="text/javascript" src="js/controllers.private.js"></script>
+
+	</body>
+</html>
