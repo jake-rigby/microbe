@@ -4,9 +4,13 @@ microbe
 The microbe node.js module is an implementation of the following stack : 
 
 http://nodejs.org/
+
 http://expressjs.com/
+
 http://socket.io/
+
 http://passport.io/
+
 https://github.com/MSOpenTech/redis (http://redis.io/)
 
 It enables the creation of an application server with a RESTful API, a socket implementation and user authentication with the user credentials available in both the socket scope and serialised into the session cookie
