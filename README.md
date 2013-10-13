@@ -23,10 +23,12 @@ Create a server.js :
 	
 	var fbConfig = { name : "yourAppName", id : "youFbAppId", secret : "yourFbAppSecret" };
 	var dbConfig = { host : "127.0.0.1", port : "6379", pass : "" }; // <-- default redis host and port
+	var port = 8080;
+	var url = 'http://yourdomain.com:'+port;
 	
-	var app = new microbe(
-		__dirname+'/clients/html/public', 
-		__dirname+'/clients/html/private', 
+	var applicaion = new microbe(
+		__dirname+'/clients/html/public', // <-- do not intersect the public and private static folders
+		__dirname+'/clients/html/private', // <-- privately served static content is only available to authenticated sessions
 		url,
 		port,
 		redisConfig,
@@ -38,11 +40,9 @@ Make sure redis is accessible from your node process. execute:
 
 	node server.js
 
-##Add socket functionality
+##Add a socket api
 
-continue in server.js :
-
-	app.add(function(socket, user){
+	application.app.add(function(socket, user){ // <-- .app is the express instance
 
 		// here, a new socket connection is exposed along with the authenticated user of that socket
 		socket.on('some_client_event', function(someClientData){
@@ -51,6 +51,7 @@ continue in server.js :
 		});
 	});
 
+##Database
 microbe uses redisConnect to store session information, and therefore requires a redis client
 
 	var redis = require('redis').createClient(redisConfig.port,redisConfig.host,{no_ready_check: true});
@@ -58,15 +59,29 @@ microbe uses redisConnect to store session information, and therefore requires a
 
 	app.add(function(socket, user){
 
-		var key = 'microbe-example:'+user.identifier+':someNamespace';
+		var namespace = 'microbe-example:'+user.identifier+':foo';
 
 		// here, a new socket connection is exposed along with the authenticated user of that socket
 		socket.on('some_client_event', function(someClientData){
-			redis.get(key, function(err, userData){
+			redis.get(namespace, function(err, userData){
 				var result = doSomethingWith(someClientData, userData);
 				socket.emit('server_result', result);
 			});
 		});
 	});
+	
+##Add RESTful api
+
+	application.app.get('/messages',function(req,res){
+		var namespace = 'microbe-example:'+req.session.passport.user.identifier+':messages'; // <-- the user credentials are available in the session cookie
+		redis.lrange(namespace+':messages',0,-1,function(err,messages){
+			if (!messages) res.send(null,401);
+			else res.send(messages);
+		});
+	});
+	
+##Application Template
+
+
 
 On npm : https://npmjs.org/package/microbe 
