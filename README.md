@@ -1,7 +1,7 @@
 microbe
 =======
 
-Combines and encapsulates the following, adding nothing new or novel:
+The microbe node.js module is an implementation of the following stack : 
 
 http://nodejs.org/
 http://expressjs.com/
@@ -9,6 +9,7 @@ http://socket.io/
 http://passport.io/
 https://github.com/MSOpenTech/redis (http://redis.io/)
 
+It enables the creation of an application server with a RESTful API, a socket implementation and user authentication with the user credentials available in both the socket scope and serialised into the session cookie
 
 ##Install
 
@@ -20,11 +21,17 @@ Create a server.js :
 
 	var microbe = require('microbe').microbe;
 	
-	var appConfig = { location : "http://localhost", port : 1130 };
 	var fbConfig = { name : "yourAppName", id : "youFbAppId", secret : "yourFbAppSecret" };
 	var dbConfig = { host : "127.0.0.1", port : "6379", pass : "" }; // <-- default redis host and port
 	
-	var app = new microbe(__dirname+'/node_modules/microbe/example/public', appConfig, dbConfig, fbConfig);
+	var app = new microbe(
+		__dirname+'/clients/html/public', 
+		__dirname+'/clients/html/private', 
+		url,
+		port,
+		redisConfig,
+		fbConfig
+	);
 
 
 Make sure redis is accessible from your node process. execute:
@@ -44,10 +51,10 @@ continue in server.js :
 		});
 	});
 
-microbe uses redisConnect to store session information, but you can just create another redis client here for whatever your needs. Updating the previous method :
+microbe uses redisConnect to store session information, and therefore requires a redis client
 
 	var redis = require('redis').createClient(redisConfig.port,redisConfig.host,{no_ready_check: true});
-	redis.auth(redisConfig.pass, function(){}); // <-- not required for a local store
+	redis.auth(redisConfig.pass, function(){}); // <-- only required for a remote paas service
 
 	app.add(function(socket, user){
 
