@@ -4,19 +4,17 @@
   "version": "0.2.0",
   "private": false,
   "dependencies": {
-    "openid": "0.5.2",
     "express": "3.1.0",
-    "connect": "*",
-    "redis": "*",
-    "connect-redis": "*",
-    "socket.io": "*",
-    "cookie": "*",
-    "passport": "*",
-    "passport-google": "*",
-    "passport-local": "*",
-    "passport-facebook": "*",
-    "passport.socketio": "*",
-    "konphyg": "*"
+    "connect": "2.11.0",
+    "redis": "0.8.6",
+    "connect-redis": "1.4.6",
+    "socket.io": "0.9.16",
+    "cookie": "0.1.0",
+    "passport": "0.1.17",
+    "passport-google": "0.3.0",
+    "passport-local": "0.1.6",
+    "passport-facebook": "1.0.2",
+    "passport.socketio": "2.1.1"
   },
   "main": "lib/microbe/microbe.js",
   "directories": {
@@ -29,7 +27,7 @@
   "keywords": [
     "passport",
     "redis",
-    "epress",
+    "express",
     "socketio"
   ],
   "author": "wigby",
