@@ -1,6 +1,1 @@
-#################
-## microbe
-#################
-
-/example
-/ApplicationTemplate
+*.log
