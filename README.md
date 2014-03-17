@@ -4,7 +4,7 @@ Microbe
 Combine express, socket.io, passport and redis to quickly implement an authenticated web app
 
 
-##30 seconds
+##5 mins
 
 ```javascript
 var microbe = require('microbe');
