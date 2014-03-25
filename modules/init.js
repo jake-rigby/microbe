@@ -85,7 +85,6 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig){
 		}
 	));
 	
-	/*
 	passport.use(new LocalStrategy({
 		
 			usernameField:'username',
@@ -93,15 +92,16 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig){
 		},
 		
 		function(username, password, done){
-		
-			var user = redisClient.get('localuser:'+username,function(err,user){
+			redisClient.get('localuser:'+username,function(err,user){
+				user = JSON.parse(user);
 				if (err) return done(err);
 				if (!user) {
 					user = {
 						displayName : username,
-						password : password
+						password : password,
+						identifier : username
 					}
-					redisClient.set('localuser:'+username,user);
+					redisClient.set('localuser:'+username,JSON.stringify(user));
 					return done(null,user);
 				}
 				if (user.password != password) return done(null, false,'Incorrect password');
@@ -109,7 +109,8 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig){
 			})
 		})
 	);
-	*/
+
+
 
 	// configure express
 	app.configure(function(){
@@ -140,17 +141,17 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig){
 	
 	// configure passport routes for google login
 	app.get('/auth/google', passport.authenticate('google'));
-	app.get('/auth/google/return', passport.authenticate('google',{successRedirect:'/',failureRedirect:'/login.html'}));
+	app.get('/auth/google/return', passport.authenticate('google',{successRedirect:'/',failureRedirect:'/'}));
 	
-	/*
+	
 	// routes for local login
-	app.post('/l', passport.authenticate('local',{successRedirect: '/', failureRedirect: '/login.html'}));
-	*/
+	app.post('/login', passport.authenticate('local',{successRedirect: '/', failureRedirect: '/'}));
+	
 	
 	// routes for facebook login
 	app.get('/auth/facebook', passport.authenticate('facebook'));
 	app.get('/auth/facebook/callback', 
-		passport.authenticate('facebook', { successRedirect: '/', failureRedirect: '/login' }));
+		passport.authenticate('facebook', { successRedirect: '/', failureRedirect: '/login.html' }));
 
 	/*
 	 * passport allows hooks to serialise the user data 
