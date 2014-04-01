@@ -41,21 +41,6 @@ angular.module('microbe.services',[])
 		window.location.reload();
 	});
 
-	/**
-	 * export function should be part of the clidb remote client
-	 */
-
-	service.export = function(classkey) {
-		
-		socketio.emit('clidb.export', classkey);
-	}
-
-	socketio.on('clidb.export', function() {
-
-		// server confirms export
-		console.log('exported');
-	});
-
 	return service;
 }])
 

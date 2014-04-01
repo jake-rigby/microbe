@@ -16,9 +16,4 @@ angular.module('microbe.controllers',[])
 		
 		UserService.reset();
 	}
-
-	$scope.exportClass = function(classkey) {
-		console.log('export', classkey);
-		UserService.export(classkey);
-	}
 }])
