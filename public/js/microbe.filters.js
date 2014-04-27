@@ -30,3 +30,22 @@ angular.module('microbe.filters',[])
 	}
 })
 
+.filter('trunc', function() {
+
+	return function(d) {
+		/*
+		var a = function(data, depth) {
+			if (Array.isArray(data) || Object.prototype.toString.call(data) == '[object Object]') {
+				for (var p in data) {
+					if (depth > 2) {
+						data[p] = Object.prototype.toString.call(data[p]);
+					} else {
+						a(data, depth++);
+					}
+				}
+			}
+		}
+		a(d,0);*/
+		return angular.toJSON(d,true);
+	}
+})
