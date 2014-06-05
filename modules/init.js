@@ -104,57 +104,68 @@ cookieSignature = require('cookie-signature'),
 
 	// config express
 	app.use(bodyParser());
-	app.use(cookieParser('secret')); // <-- #executionorder cookie parser used first
+	app.use(cookieParser());//'secret')); // <-- #executionorder cookie parser used first
 	app.use(expressSession({
 		secret: 'secret', 
 		store : sessionStore,
 		key : 'express.sid'
 	}));
 	app.use(passport.initialize()); // <-- init passport after session and cookie mware
+	app.use(passport.session());
 
-
-	// config socket.io
-	io.adapter(socketioRedis({
-		host: 'localhost', 
-		port:6379
-	}));	
-
+	
 	io.use(function(socket, next) {
-		var data = socket.request;
+		
 		if (socket.request.headers.cookie) {
 
-			// parse the cookie in the head and set the session id on the request 
+			// parse the cookie in the request, unsign the session id and store it on the request
 			socket.request.cookie = cookie.parse(socket.request.headers.cookie);
-			socket.request.sessionID = socket.request.cookie['express.sid'];
-
+			var sid = socket.request.cookie['express.sid'].replace("s:", "");
+			sid = cookieSignature.unsign(sid, 'secret');
+			socket.request.sessionID = sid;
+			console.log('unsigned',sid);
 			console.log('your cookie', socket.request.cookie);
-			console.log('your sid', socket.request.cookie['express.sid']);
+
+			// use it to retrieve the session from the store
+			sessionStore.load(socket.request.sessionID, function(err, sesh) {
+
+				console.log('session store result', err, sesh);
+			})
+			next();
 		}
-		next();
-	})
+
+		
+	});
 
 	// implement socket.io
 	io.sockets.on('connection',function(socket){
+		
+		console.log('default connection', 'request', socket.request.passport);
+		/*
 		//socket.session = new connect.middleware.session.Session({ sessionStore: sessionStore }, socket.handshake.session);
 		socket.session = new expressSession.Session(socket.request, {store: sessionStore});
 		if (socket.session && socket.session.passport) {
-			//console.log('socket recognising '+socket.session.passport.user.displayName+' in session '+socket.handshake.sessionID);			
+			console.log('socket recognising '+socket.session.passport.user.displayName+' in session '+socket.handshake.sessionID);			
 		}
+		*/
+		
 	});
 
 
 	// expose a socket connection and inject the user
 	app.add = function(api) {
-		api(socket, socket.session.passport.user);
-		/*
 		io.sockets.on('connection', function(socket){
-			socket.session = new connect.middleware.session.Session({ sessionStore: sessionStore }, socket.handshake.session);			
-			console.log('connect session', session); 
+
+			console.log('api connection', 'sessionID', socket.request.sessionID);
+			/*
+			console.log('connect session', socket.session); 
 			if (socket.session && socket.session.passport.user) {
-				//console.log('socket recognising '+socket.session.passport.user.displayName+' in session '+socket.handshake.sessionID);			
+				console.log('socket recognising '+socket.session.passport.user.displayName+' in session '+socket.handshake.sessionID);			
 				api(socket,socket.session.passport.user);
 			}
+			*/
 		});
+		
 	};
 	
 
