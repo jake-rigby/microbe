@@ -92,10 +92,12 @@ cookieSignature = require('cookie-signature'),
 	 * but you can use another store here
 	 */
 	passport.serializeUser(function(user, done) {
+		console.log('serializing', user);
 		done(null, user);
 	});
 
 	passport.deserializeUser(function(identifier, done) {
+		console.log('deserializing', identifier);
 		done(null, identifier);	
 	});
 
@@ -134,8 +136,8 @@ cookieSignature = require('cookie-signature'),
 	// implement socket.io
 	io.sockets.on('connection',function(socket){
 		//socket.session = new connect.middleware.session.Session({ sessionStore: sessionStore }, socket.handshake.session);
-		socket.session = new expressSession.Session(socket.request);
-		if (socket.session && socket.session.passport.user) {
+		socket.session = new expressSession.Session(socket.request, {store: sessionStore});
+		if (socket.session && socket.session.passport) {
 			//console.log('socket recognising '+socket.session.passport.user.displayName+' in session '+socket.handshake.sessionID);			
 		}
 	});
@@ -143,6 +145,8 @@ cookieSignature = require('cookie-signature'),
 
 	// expose a socket connection and inject the user
 	app.add = function(api) {
+		api(socket, socket.session.passport.user);
+		/*
 		io.sockets.on('connection', function(socket){
 			socket.session = new connect.middleware.session.Session({ sessionStore: sessionStore }, socket.handshake.session);			
 			console.log('connect session', session); 
