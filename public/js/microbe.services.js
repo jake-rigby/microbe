@@ -24,22 +24,9 @@ angular.module('microbe.services',[])
 	service.logout = function(){
 		service.user = null;
 		$rootScope.$broadcast('userUpdated',null);
-		console.log('logout');
 		$location.path(servicesRoot);
 		$http({method: 'GET', url: servicesRoot+'/logout'})
-		// TODO - remove authentication from the session/ force a new one
 	}
-
-	service.reset = function(){
-		
-		socketio.emit('useradmin.reset');
-	}
-
-	socketio.on('useradmin.reset', function() {
-
-		// server has confirmed reset - reload
-		window.location.reload();
-	});
 
 	return service;
 }])
@@ -47,7 +34,6 @@ angular.module('microbe.services',[])
 
 .factory('socket.io',['$rootScope',function($rootScope){
 
-	// connect and return the socket object
 	var socket = io.connect(servicesRoot ? servicesRoot:'');
 	socket.once('disconnect', function(){
 		console.log('socket disconnected by server');

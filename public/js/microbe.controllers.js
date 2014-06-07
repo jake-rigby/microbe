@@ -2,7 +2,7 @@
 	
 angular.module('microbe.controllers',[])
 
-.controller('UserController',['$scope','UserService','$rootScope','$window',function($scope,UserService,$rootScope,$window){
+.controller('UserController',['$scope','UserService','$window',function($scope,UserService,$window){
 	
 	$scope.user = UserService.user;
 	$scope.logout = UserService.logout;
@@ -11,11 +11,6 @@ angular.module('microbe.controllers',[])
 		
 		$scope.user = user;
 	});
-
-	$scope.reset = function() {
-		
-		UserService.reset();
-	}
 
 	$scope.googleLogin = function() {
 

@@ -1,32 +1,41 @@
-
 module.exports = function(callbackurl, port, redisConfig, fbConfig){
 
-	// params
+	
+	/*
+	 * params
+	 */
+
 	var redisHost = redisConfig.host,
 		redisPort = redisConfig.port,
 		redisPass = redisConfig.pass,
-		fbAppId = fbConfig.id,
-		fbAppSecret = fbConfig.secret;
+		fbAppId = fbConfig ? fbConfig.id : null,
+		fbAppSecret = fbConfig ? fbConfig.secret : null;
 
-	// deps
+
+	/*
+	 * deps
+	 */
+
 	var express = require('express'),
 		expressSession = require('express-session'),
 		passport = require('passport'),
 		redis = require('redis'),
 		socketio = require('socket.io')
 		socketioRedis = require('socket.io-redis'),
-connect = require('connect'),
 		http = require('http'),
-cookie = require('cookie'),
-cookieParser = require('cookie-parser'),
-cookieSignature = require('cookie-signature'),
+		cookie = require('cookie'),
+		cookieParser = require('cookie-parser'),
+		cookieSignature = require('cookie-signature'),
 		bodyParser = require('body-parser'),
 		LocalStrategy = require('passport-local').Strategy,
 		GoogleStrategy = require('passport-google').Strategy,
 		FacebookStrategy = require('passport-facebook').Strategy;
 
 
-	// init systems
+	/*
+	 * init components
+	 */
+
 	var app = express(),
 		httpserver = http.createServer(app),
 		redisClient = redis.createClient(redisConfig.port,redisConfig.host,{no_ready_check: false}),
@@ -34,7 +43,10 @@ cookieSignature = require('cookie-signature'),
 		io = socketio.listen(httpserver);
 
 
-	// config passport
+	/*
+	 * configure passport
+	 */
+
 	passport.use(new GoogleStrategy({		
 			returnURL: callbackurl+'/auth/google/return',
 			realm: callbackurl+'/'
@@ -85,85 +97,74 @@ cookieSignature = require('cookie-signature'),
 		})
 	);
 
-	/*
-	 * passport allows hooks to serialise the user data 
-	 * into the session key and retreive it out
-	 * here we are serialising the lot
-	 * but you can use another store here
-	 */
+	// tell passport how to serialise the user (you can use anoter store here)
 	passport.serializeUser(function(user, done) {
-		console.log('serializing', user);
 		done(null, user);
 	});
-
 	passport.deserializeUser(function(identifier, done) {
-		console.log('deserializing', identifier);
 		done(null, identifier);	
 	});
 
 
-	// config express
+	/*
+	 * configure express
+	 */
+
+	// execution order important
 	app.use(bodyParser());
-	app.use(cookieParser());//'secret')); // <-- #executionorder cookie parser used first
+	app.use(cookieParser()); 	
 	app.use(expressSession({
 		secret: 'secret', 
 		store : sessionStore,
 		key : 'express.sid'
 	}));
-	app.use(passport.initialize()); // <-- init passport after session and cookie mware
+	app.use(passport.initialize()); 
 	app.use(passport.session());
 
 	
+	/*
+	 * configure socket mware
+	 */
+
 	io.use(function(socket, next) {
-		
+		 
 		if (socket.request.headers.cookie) {
 
-			// parse the cookie in the request, unsign the session id and store it on the request
+			// the express session id has been signed and added to the cookie
 			socket.request.cookie = cookie.parse(socket.request.headers.cookie);
 			var sid = socket.request.cookie['express.sid'].replace("s:", "");
 			sid = cookieSignature.unsign(sid, 'secret');
+
+			// store the unsigned id on the request itself
 			socket.request.sessionID = sid;
-			console.log('unsigned',sid);
-			console.log('your cookie', socket.request.cookie);
 
-			// use it to retrieve the session from the store
-			sessionStore.load(socket.request.sessionID, function(err, sesh) {
+			// use it to retrieve the session express placed in the store
+			sessionStore.load(socket.request.sessionID, function(err, sess) {
 
-				console.log('session store result', err, sesh);
+				// place the retrieved seesion on the reqest
+				socket.request.session = sess;
+				socket.session = sess;
+
+				next();
 			})
-			next();
-		}
 
+		} else {
+			console.log('[microbe] init no cookie');
 		
-	});
-
-	// implement socket.io
-	io.sockets.on('connection',function(socket){
-		
-		console.log('default connection', 'request', socket.request.passport);
-		/*
-		//socket.session = new connect.middleware.session.Session({ sessionStore: sessionStore }, socket.handshake.session);
-		socket.session = new expressSession.Session(socket.request, {store: sessionStore});
-		if (socket.session && socket.session.passport) {
-			console.log('socket recognising '+socket.session.passport.user.displayName+' in session '+socket.handshake.sessionID);			
 		}
-		*/
-		
 	});
 
 
-	// expose a socket connection and inject the user
+	/*
+	 * expose a socket connection and inject the user
+	 */
+
 	app.add = function(api) {
-		io.sockets.on('connection', function(socket){
 
-			console.log('api connection', 'sessionID', socket.request.sessionID);
-			/*
-			console.log('connect session', socket.session); 
+		io.sockets.on('connection', function(socket){
 			if (socket.session && socket.session.passport.user) {
-				console.log('socket recognising '+socket.session.passport.user.displayName+' in session '+socket.handshake.sessionID);			
 				api(socket,socket.session.passport.user);
-			}
-			*/
+			}			
 		});
 		
 	};
@@ -178,22 +179,18 @@ cookieSignature = require('cookie-signature'),
 		req.logout();
 		res.redirect('/');
 	});	
-	
 
 	// configure passport routes for google login
 	app.get('/auth/google', passport.authenticate('google'));
 	app.get('/auth/google/return', passport.authenticate('google',{successRedirect:'/',failureRedirect:'/'}));
 	
-	
 	// routes for local login
 	app.post('/login', passport.authenticate('local',{successRedirect: '/', failureRedirect: '/'}));
-	
 	
 	// routes for facebook login
 	app.get('/auth/facebook', passport.authenticate('facebook'));
 	app.get('/auth/facebook/callback', 
 	passport.authenticate('facebook', { successRedirect: '/', failureRedirect: '/login.html' }));
-
 
 	// add a route to get the user // 401 is not authorised
 	app.get('/user', function (req, res) {
@@ -204,9 +201,11 @@ cookieSignature = require('cookie-signature'),
 	});
 
 
+	/*
+	 * go
+	 */
+
 	httpserver.listen(port);
-
-
 	return app;
 
 }

@@ -6,7 +6,6 @@
   "dependencies": {
     "express": "4.4.1",
     "express-session":"*",
-    "connect": "2.19.0",
     "redis": "0.10.3",
     "connect-redis": "2.0.0",
     "socket.io": "1.0.4",
