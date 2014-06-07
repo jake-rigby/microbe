@@ -34,13 +34,19 @@
 				
 				<div class="col-xs-12">
 					<h1 class="">Sign in</h1>
+
+					<!-- use /auth/google for google login -->
 					<a class="text-lg" href="/auth/google" >Google</a>,
+
+					<!-- use auth/facebook for facebook login -->
 					<a class="text-lg" href="/auth/facebook" >Facebook</a>
-					or
+
 				</div>
 			</div>
 			<div class="row pad">
 				<div class="col-xs-6">
+
+					<!-- use /login for local login/signup -->
 					<form role="form" class="form" action="/login" method="post">
 						<div class="form-group">
 							<input name="username" id="em" type="text" class="form-control" placeholder="Enter email">
@@ -50,6 +56,7 @@
 						</div>
 						<button type="submit" class="btn btn-default">login/signup</button>
 					</form>
+					
 				</div>
 			</div>
 		</div>
