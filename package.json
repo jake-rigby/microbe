@@ -12,7 +12,7 @@
     "socket.io-redis": "*",
     "cookie": "0.1.2",
     "passport": "0.2.0",
-    "passport-google": "*",
+    "passport-google-oauth": "*",
     "passport-local": "*",
     "passport-facebook": "*",
     "cookie-parser": "*",

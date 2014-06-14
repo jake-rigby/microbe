@@ -1,6 +1,6 @@
-module.exports = function(callbackurl, port, redisConfig, fbConfig){
+module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig){
 
-	
+	console.log('callback url', callbackurl)
 	/*
 	 * params
 	 */
@@ -9,7 +9,9 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig){
 		redisPort = redisConfig.port,
 		redisPass = redisConfig.pass,
 		fbAppId = fbConfig ? fbConfig.id : null,
-		fbAppSecret = fbConfig ? fbConfig.secret : null;
+		fbAppSecret = fbConfig ? fbConfig.secret : null,
+		googleAppId = googleConfig ? googleConfig.client_id : null,
+		googleAppSecret = googleConfig ? googleConfig.client_secret : null; // <-- these keys derived from Google APIs console json download
 
 
 	/*
@@ -28,8 +30,10 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig){
 		cookieSignature = require('cookie-signature'),
 		bodyParser = require('body-parser'),
 		LocalStrategy = require('passport-local').Strategy,
-		GoogleStrategy = require('passport-google').Strategy,
+		//GoogleStrategy = require('passport-google').Strategy,
+		GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
 		FacebookStrategy = require('passport-facebook').Strategy;
+
 
 
 	/*
@@ -46,7 +50,7 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig){
 	/*
 	 * configure passport
 	 */
-
+	 /* OpenID authentication is being 'sunsetted'
 	passport.use(new GoogleStrategy({		
 			returnURL: callbackurl+'/auth/google/return',
 			realm: callbackurl+'/'
@@ -56,7 +60,23 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig){
 			redisClient.set(identifier,profile);
 			return done(null, profile);
 		})
-	);
+	);*/
+	passport.use(new GoogleStrategy({
+			clientID: googleAppId,
+			clientSecret: googleAppSecret,
+			callbackURL: callbackurl+'/auth/google/callback'
+		},
+		function(accessToken, refreshToken, profile, done) {
+			/*User.findOrCreate({ googleId: profile.id }, function (err, user) {
+				return done(err, user);
+			});*/
+			profile.accessToken = accessToken;
+			profile.refreshToken = refreshToken;
+			redisClient.set(profile.id, profile, function(err, result) {
+ 				done(err, profile);
+			});
+		}
+	));
 
 	passport.use(new FacebookStrategy({		
 			clientID: fbConfig.id,
@@ -181,8 +201,8 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig){
 	});	
 
 	// configure passport routes for google login
-	app.get('/auth/google', passport.authenticate('google'));
-	app.get('/auth/google/return', passport.authenticate('google',{successRedirect:'/',failureRedirect:'/'}));
+	app.get('/auth/google', passport.authenticate('google', {scope: 'https://www.googleapis.com/auth/plus.login'})); // <-- you need scopes here, not documented on library github site
+	app.get('/auth/google/callback', passport.authenticate('google',{successRedirect:'/',failureRedirect:'/'}));
 	
 	// routes for local login
 	app.post('/login', passport.authenticate('local',{successRedirect: '/', failureRedirect: '/'}));
