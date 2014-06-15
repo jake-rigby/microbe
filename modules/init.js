@@ -61,6 +61,7 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 			return done(null, profile);
 		})
 	);*/
+console.log(googleConfig);
 	passport.use(new GoogleStrategy({
 			clientID: googleAppId,
 			clientSecret: googleAppSecret,
