@@ -15,6 +15,7 @@
     "passport-google-oauth": "*",
     "passport-local": "*",
     "passport-facebook": "*",
+    "passport-twitter": "*",
     "cookie-parser": "*",
     "cookie-signature": "*",
     "body-parser": "*"
