@@ -114,7 +114,7 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 			return done(null, profile);
 		})
 	);
-console.log(callbackurl);
+
 	if (twitterConfig) passport.use(new TwitterStrategy({
 			consumerKey: twitterConfig.consumer_key,
 			consumerSecret: twitterConfig.consumer_secret,
@@ -189,17 +189,18 @@ console.log(callbackurl);
 
 
 	/*
-	 * expose a socket connection and inject the user
+	 * expose a socket connection and inject the user - optional namespace
 	 */
 
-	app.add = function(api) {
-
-		io.sockets.on('connection', function(socket){
+	app.add = function(api, ns) {
+		var nsSocket;
+		if (!ns) nsSocket = io.sockets;
+		else nsSocket = io.of(ns);
+		nsSocket.on('connection', function(socket){
 			if (socket.session && socket.session.passport.user) {
 				api(socket,socket.session.passport.user);
 			}			
 		});
-		
 	};
 	
 

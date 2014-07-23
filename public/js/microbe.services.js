@@ -2,8 +2,8 @@
 	
 angular.module('microbe.services',[])
 
-.factory('UserService',['$http','$rootScope','socket.io','$location',
-	function($http,$rootScope,socketio,$location){
+.factory('UserService',['$http','$rootScope','$location',
+	function($http,$rootScope,$location){
 	
 	var service = {user:null};
 	
@@ -32,16 +32,44 @@ angular.module('microbe.services',[])
 }])
 
 
-.factory('socket.io',['$rootScope',function($rootScope){
+.factory('socket.io', ['$rootScope', function($rootScope) {
 
+	// the default namespace
 	var socket = io.connect(servicesRoot ? servicesRoot:'');
+	
 	socket.once('disconnect', function(){
 		console.log('socket disconnected by server');
 		$rootScope.$broadcast('socket.io.disconnected');
 	});
+
 	socket.on('connect',function(data){
 		console.log('socket connected');
 		$rootScope.$broadcast('socket.io.connected');
 	});
+
+	// lookup for namespace sockets, so they are singleton
+	var nsSockets = {};
+	
+	// add the api to get a namespace socket to the default socket
+	socket.get = function(ns) {
+
+		if (nsSockets[ns]) return nsSockets[ns];
+
+		var nsSocket = io('/'+ns).connect(servicesRoot ? servicesRoot:'');
+		
+		nsSocket.once('disconnect', function(){
+			console.log('ns nsSocket disconnected by server');
+			$rootScope.$broadcast('socket.io.ns.disconnected', {ns:ns});
+		});
+		
+		nsSocket.on('connect',function(data){
+			console.log('ns nsSocket connected:', ns);
+			$rootScope.$broadcast('socket.io.ns.connected', {ns:ns});
+		});
+
+		return nsSocket;
+	}
+
 	return socket;
+
 }])
