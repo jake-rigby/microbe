@@ -49,13 +49,15 @@ angular.module('microbe.services',[])
 
 	// lookup for namespace sockets, so they are singleton
 	var nsSockets = {};
+	nsSockets['/'] = socket;
+
 	
 	// add the api to get a namespace socket to the default socket
 	socket.get = function(ns) {
 
 		if (nsSockets[ns]) return nsSockets[ns];
 
-		var nsSocket = io('/'+ns).connect(servicesRoot ? servicesRoot:'');
+		var nsSocket = io(ns).connect(servicesRoot ? servicesRoot:'');
 		
 		nsSocket.once('disconnect', function(){
 			console.log('ns nsSocket disconnected by server');

@@ -159,7 +159,8 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 	 * configure socket mware
 	 */
 
-	io.use(function(socket, next) {
+
+	function authenticate(socket, next) {
 		 
 		if (socket.request.headers.cookie) {
 
@@ -185,20 +186,26 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 			console.log('[microbe] init no cookie');
 		
 		}
-	});
+	}
+	
+	// authenticate the default socket
+	io.use(authenticate);
 
 
 	/*
 	 * expose a socket connection and inject the user - optional namespace
 	 */
 
-	app.add = function(api, ns) {
+	app.add = function(mw, ns) {
 		var nsSocket;
 		if (!ns) nsSocket = io.sockets;
-		else nsSocket = io.of(ns);
+		else {
+			nsSocket = io.of(ns);
+			io.of(ns).use(authenticate); // <-- remember to authenticate/ add user info
+		}
 		nsSocket.on('connection', function(socket){
 			if (socket.session && socket.session.passport.user) {
-				api(socket,socket.session.passport.user);
+				mw(socket,socket.session.passport.user);
 			}			
 		});
 	};
