@@ -43,6 +43,8 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 		sessionStore = new (require('connect-redis')(expressSession))({host: 'localhost', port: 6379}),
 		io = socketio.listen(httpserver);
 
+	app.io = io;
+
 
 	/*
 	 * configure passport
