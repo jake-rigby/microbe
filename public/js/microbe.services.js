@@ -2,26 +2,33 @@
 	
 angular.module('microbe.services',[])
 
-.factory('UserService',['$http','$rootScope','$location',
-	function($http,$rootScope,$location){
+.factory('UserService',['$http','$rootScope','$location','$q',
+	function($http,$rootScope,$location,$q){
 	
-	var service = {user:null};
+	var u = $q.defer(),
+	service = {
+		user:null,
+		qUser: function() {
+			return u.promise;
+		}
+	}
 	
 	$http({method: 'GET', url: servicesRoot+'/user'})
 		
-		.success(function(data, status,headers){
+		.success(function(data, status, headers) {
 			if (status == 200 && data.hasOwnProperty('identifier') && data.hasOwnProperty('displayName')) service.user = data;
 			else service.user = null; // 401
 			$rootScope.$broadcast('userUpdated',service.user);
+			u.resolve(data)
 		})
 		
-		.error(function(data, status){
+		.error(function(data, status) {
 			service.user = null;
 			$rootScope.$broadcast('userUpdated',null);
 			console.log('login failed: '+status);
 		})
 
-	service.logout = function(){
+	service.logout = function() {
 		service.user = null;
 		$rootScope.$broadcast('userUpdated',null);
 		$location.path(servicesRoot);
@@ -47,13 +54,18 @@ angular.module('microbe.services',[])
 		$rootScope.$broadcast('socket.io.connected');
 	});
 
-	// lookup for namespace sockets, so they are singleton
-	var nsSockets = {};
-	nsSockets['/'] = socket;
+	return socket;
 
-	
+}])
+
+
+.factory('socket.io.ns', ['$rootScope', function($rootScope) {
+
+	var service = {},
+		nsSockets = {};
+
 	// add the api to get a namespace socket to the default socket
-	socket.get = function(ns) {
+	service.get = function(ns) {
 
 		if (nsSockets[ns]) return nsSockets[ns];
 
@@ -72,6 +84,5 @@ angular.module('microbe.services',[])
 		return nsSocket;
 	}
 
-	return socket;
-
+	return service;	
 }])

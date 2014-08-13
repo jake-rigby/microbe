@@ -8,7 +8,7 @@
     "express-session":"*",
     "redis": "0.10.3",
     "connect-redis": "2.0.0",
-    "socket.io": "1.0.4",
+    "socket.io": "1.0.6",
     "socket.io-redis": "*",
     "cookie": "0.1.2",
     "passport": "0.2.0",

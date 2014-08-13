@@ -203,7 +203,7 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 		if (!ns) nsSocket = io.sockets;
 		else {
 			nsSocket = io.of(ns);
-			io.of(ns).use(authenticate); // <-- remember to authenticate/ add user info
+			nsSocket.use(authenticate); // <-- remember to authenticate/ add user info
 		}
 		nsSocket.on('connection', function(socket){
 			if (socket.session && socket.session.passport.user) {
