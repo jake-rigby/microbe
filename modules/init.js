@@ -66,7 +66,7 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 			passwordField:'password'
 		},		
 		function(username, password, done) {
-			redisClient.get('localuser:'+username, function(err, user) {				
+			redisClient.get('user:'+username, function(err, user) {				
 				user = JSON.parse(user);
 				if (err) return done(err);
 				if (!user) {
@@ -75,7 +75,7 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 						password : password,
 						identifier : username
 					}
-					redisClient.set('localuser:'+username,JSON.stringify(user));
+					redisClient.set('user:'+username,JSON.stringify(user));
 					return done(null,user);
 				}
 				if (user.password != password) return done(null, false,'Incorrect password');
