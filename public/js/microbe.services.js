@@ -35,10 +35,12 @@ angular.module('microbe.services',[])
 	}
 
 	service.logout = function(path) {
+
+		console.log('use href to logout with "/logout"');
 		service.user = null;
 		$rootScope.$broadcast('userUpdated',null);
-		if (path) $location.url(path);
 		$http({method: 'GET', url: servicesRoot+'/logout'})
+		$location.url(path);
 	}
 
 	service.poll();
