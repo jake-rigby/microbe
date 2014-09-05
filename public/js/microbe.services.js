@@ -13,7 +13,12 @@ angular.module('microbe.services',[])
 		}
 	}
 	
-	$http({method: 'GET', url: servicesRoot+'/user'})
+
+	service.poll = function() {
+
+		console.log('polling');
+		
+		$http({method: 'GET', url: servicesRoot+'/user'})
 		
 		.success(function(data, status, headers) {
 			if (status == 200 && data.hasOwnProperty('identifier') && data.hasOwnProperty('displayName')) service.user = data;
@@ -27,13 +32,16 @@ angular.module('microbe.services',[])
 			$rootScope.$broadcast('userUpdated',null);
 			console.log('login failed: '+status);
 		})
+	}
 
-	service.logout = function() {
+	service.logout = function(path) {
 		service.user = null;
 		$rootScope.$broadcast('userUpdated',null);
-		$location.path(servicesRoot);
+		if (path) $location.url(path);
 		$http({method: 'GET', url: servicesRoot+'/logout'})
 	}
+
+	service.poll();
 
 	return service;
 }])
