@@ -15,8 +15,6 @@ angular.module('microbe.services',[])
 	
 
 	service.poll = function() {
-
-		console.log('polling');
 		
 		$http({method: 'GET', url: servicesRoot+'/user'})
 		
