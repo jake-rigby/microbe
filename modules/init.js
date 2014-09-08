@@ -220,6 +220,8 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 	// logout	
 	app.get('/logout', function(req,res){
 		req.logout();
+		req.session.destroy(); // <-- http://stackoverflow.com/questions/13758207/why-is-passportjs-in-node-not-removing-session-on-logout
+		res.clearCookie('express.sid');
 		res.redirect('/');
 	});	
 	
