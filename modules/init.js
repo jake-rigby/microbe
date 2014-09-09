@@ -1,6 +1,14 @@
 module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig, twitterConfig){
 
-	console.log('callback url', callbackurl)
+	var ip = require(__dirname+'/utils').myip();
+	if (callbackurl.indexOf('http://'+ip) != 0) {
+		console.info('[MICROBE] for dev, ensure the following line is in C:\\Windows\\System32\\drivers\\etc');
+		console.info("");
+		console.info("   \""+ip+"  "+callbackurl.split('//')[1].split(':')[0]+"\"");
+		console.info("");
+	}
+
+
 	/*
 	 * params
 	 */
@@ -87,12 +95,13 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 	if (googleConfig) passport.use(new GoogleStrategy({
 			clientID: googleConfig.client_id,
 			clientSecret: googleConfig.client_secret,
-			callbackURL: callbackurl+'/auth/google/callback'
+			callbackURL: callbackurl+'/oauth2callback'//'/auth/google/callback'
 		},
 		function(accessToken, refreshToken, profile, done) {
 			/*User.findOrCreate({ googleId: profile.id }, function (err, user) {
 				return done(err, user);
 			});*/
+			profile.identifier = profile.id;
 			profile.accessToken = accessToken;
 			profile.refreshToken = refreshToken;
 			redisClient.set(profile.id, profile, function(err, result) {
@@ -232,7 +241,7 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 
 	// configure passport routes for google login
 	app.get('/auth/google', passport.authenticate('google', {scope: 'https://www.googleapis.com/auth/plus.login'})); // <-- you need scopes here, not documented on library github site
-	app.get('/auth/google/callback', passport.authenticate('google',{successRedirect:'/',failureRedirect:'/'}));
+	app.get('/oauth2callback', passport.authenticate('google',{successRedirect:'/',failureRedirect:'/login'}));
 	
 	// routes for facebook login
 	app.get('/auth/facebook', passport.authenticate('facebook'));
