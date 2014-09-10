@@ -12,7 +12,6 @@ angular.module('microbe.services',[])
 			return u.promise;
 		}
 	}
-	
 
 	service.poll = function() {
 		
@@ -30,15 +29,6 @@ angular.module('microbe.services',[])
 			$rootScope.$broadcast('userUpdated',null);
 			console.log('login failed: '+status);
 		})
-	}
-
-	service.logout = function(path) {
-
-		console.log('use href to logout with "/logout"');
-		service.user = null;
-		$rootScope.$broadcast('userUpdated',null);
-		$http({method: 'GET', url: servicesRoot+'/logout'})
-		$location.url(path);
 	}
 
 	service.poll();

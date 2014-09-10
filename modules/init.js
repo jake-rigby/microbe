@@ -1,4 +1,4 @@
-module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig, twitterConfig){
+module.exports = function(callbackurl, port, config){
 
 	var ip = require(__dirname+'/utils').myip();
 	if (callbackurl.indexOf('http://'+ip) != 0) {
@@ -7,15 +7,6 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 		console.info("   \""+ip+"  "+callbackurl.split('//')[1].split(':')[0]+"\"");
 		console.info("");
 	}
-
-
-	/*
-	 * params
-	 */
-
-	var redisHost = redisConfig.host,
-		redisPort = redisConfig.port,
-		redisPass = redisConfig.pass;
 
 
 	/*
@@ -47,7 +38,7 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 
 	var app = express(),
 		httpserver = http.createServer(app),
-		redisClient = redis.createClient(redisConfig.port,redisConfig.host,{no_ready_check: false}),
+		redisClient = redis.createClient(config.redis.port,config.redis.host,{no_ready_check: false}),
 		sessionStore = new (require('connect-redis')(expressSession))({host: 'localhost', port: 6379}),
 		io = socketio.listen(httpserver);
 
@@ -57,17 +48,6 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 	/*
 	 * configure passport
 	 */
-	 /* OpenID authentication is being 'sunsetted'
-	passport.use(new GoogleStrategy({		
-			returnURL: callbackurl+'/auth/google/return',
-			realm: callbackurl+'/'
-		},
-		function(identifier, profile, done) {
-			profile.identifier = identifier;
-			redisClient.set(identifier,profile);
-			return done(null, profile);
-		})
-	);*/
 	
 	passport.use(new LocalStrategy({		
 			usernameField:'username',
@@ -75,7 +55,7 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 		},		
 		function(username, password, done) {
 			redisClient.get('user:'+username, function(err, user) {				
-				user = JSON.parse(user);
+				try { user = JSON.parse(user) } catch(e) { err = e}
 				if (err) return done(err);
 				if (!user) {
 					user = {
@@ -83,65 +63,73 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 						password : password,
 						identifier : username
 					}
-					redisClient.set('user:'+username,JSON.stringify(user));
-					return done(null,user);
+					redisClient.set('user:'+username, JSON.stringify(user));
+					return done(null, user);
 				}
 				if (user.password != password) return done(null, false,'Incorrect password');
-				return done(null,user);
+				return done(null, user);
 			})
 		})
 	);
 
-	if (googleConfig) passport.use(new GoogleStrategy({
-			clientID: googleConfig.client_id,
-			clientSecret: googleConfig.client_secret,
-			callbackURL: callbackurl+'/oauth2callback'//'/auth/google/callback'
+	if (config.google) passport.use(new GoogleStrategy({
+			clientID: config.google.client_id,
+			clientSecret: config.google.client_secret,
+			callbackURL: callbackurl+'/oauth2callback'
 		},
 		function(accessToken, refreshToken, profile, done) {
-			/*User.findOrCreate({ googleId: profile.id }, function (err, user) {
-				return done(err, user);
-			});*/
-			profile.identifier = profile.id;
-			profile.accessToken = accessToken;
-			profile.refreshToken = refreshToken;
-			redisClient.set(profile.id, profile, function(err, result) {
- 				done(err, profile);
-			});
+			redisClient.get('user:'+profile.id, function(err, user){
+				try { user = JSON.parse(user) } catch(e) { err = e}
+				if (err) return done(err);
+				if (!user) {
+					user = profile;
+					user.identifier = user.id;
+					redisClient.set('user:'+profile.id, JSON.stringify(user));
+				}
+				return done(null, user);
+			})
 		}
 	));
 
-	if (fbConfig) passport.use(new FacebookStrategy({		
-			clientID: fbConfig.id,
-			clientSecret: fbConfig.secret,
+	if (config.facebook) passport.use(new FacebookStrategy({		
+			clientID: config.facebook.id,
+			clientSecret: config.facebook.secret,
 			callbackURL: callbackurl+'/auth/facebook/callback'
 		},
-		function(accessToken, refreshToken, fbprofile, done) {		
-			profile = {
-				accessToken : fbprofile.accessToken,
-				displayName : fbprofile.displayName,
-				identifier : fbprofile.id
-			}
-			redisClient.set(accessToken,profile);
-			return done(null, profile);
+		function(accessToken, refreshToken, profile, done) {
+			redisClient.get('user:'+profile.id, function(err, user){
+				try { user = JSON.parse(user) } catch(e) { err = e}
+				if (err) return done(err);
+				if (!user) {
+					user = profile;
+					user.identifier = user.id;
+					redisClient.set('user:'+profile.id, JSON.stringify(user));
+				}
+				return done(null, user);
+			})
 		})
 	);
 
-	if (twitterConfig) passport.use(new TwitterStrategy({
-			consumerKey: twitterConfig.consumer_key,
-			consumerSecret: twitterConfig.consumer_secret,
+	if (config.twitter) passport.use(new TwitterStrategy({
+			consumerKey: config.twitter.key,
+			consumerSecret: config.twitter.secret,
 			callbackurl: callbackurl+'/auth/twitter/callback'
 		}, 	
-		function(accessToken, tokenSecret, twprofile, done) {
-			profile = {
-				accessToken : twprofile.accessToken,
-				displayName : twprofile.displayName,
-				identifier : twprofile.id
-			}
-			redisClient.set(accessToken,profile);
-			return done(null, profile);		})
+		function(accessToken, tokenSecret, profile, done) {
+			redisClient.get('user:'+profile.id, function(err, user){
+				try { user = JSON.parse(user) } catch(e) { err = e}
+				if (err) return done(err);
+				if (!user) {
+					user = profile;
+					user.identifier = user.id;
+					redisClient.set('user:'+profile.id, JSON.stringify(user));
+				}
+				return done(null, user);
+			})
+		})
 	);
 
-	// tell passport how to serialise the user (you can use anoter store here)
+	// tell passport how to serialise the user (you can use another store here)
 	passport.serializeUser(function(user, done) {
 		done(null, user);
 	});
@@ -237,19 +225,19 @@ module.exports = function(callbackurl, port, redisConfig, fbConfig, googleConfig
 	});	
 	
 	// routes for local login
-	app.post('/login', passport.authenticate('local',{successRedirect: '/', failureRedirect: '/'}));
+	app.post('/login', passport.authenticate('local',{successRedirect: '/', failureRedirect: '/login'}));
 
 	// configure passport routes for google login
-	app.get('/auth/google', passport.authenticate('google', {scope: 'https://www.googleapis.com/auth/plus.login'})); // <-- you need scopes here, not documented on library github site
-	app.get('/oauth2callback', passport.authenticate('google',{successRedirect:'/',failureRedirect:'/login'}));
+	app.get(config.google.authRoute, passport.authenticate('google', {scope: 'https://www.googleapis.com/auth/plus.login'})); // <-- you need scopes here, not documented on library github site
+	app.get(config.google.callback, passport.authenticate('google',{successRedirect:'/',failureRedirect:'/login'}));
 	
 	// routes for facebook login
-	app.get('/auth/facebook', passport.authenticate('facebook'));
-	app.get('/auth/facebook/callback', passport.authenticate('facebook', { successRedirect: '/', failureRedirect: '/login' }));
+	app.get(config.facebook.authRoute, passport.authenticate('facebook'));
+	app.get(config.facebook.callback, passport.authenticate('facebook', { successRedirect: '/', failureRedirect: '/login' }));
 
 	// routes for twitter login
-	app.get('/auth/twitter', passport.authenticate('twitter'));
-	app.get('/auth/twitter/callback', passport.authenticate('twitter', {successRedirect: '/', failureRedirect: '/login'}));
+	app.get(config.twitter.authRoute, passport.authenticate('twitter'));
+	app.get(config.twitter.callback, passport.authenticate('twitter', {successRedirect: '/', failureRedirect: '/login'}));
 
 	// add a route to get the user // 401 is not authorised
 	app.get('/user', function (req, res) {
