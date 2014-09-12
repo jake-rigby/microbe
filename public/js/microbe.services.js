@@ -15,7 +15,7 @@ angular.module('microbe.services',[])
 
 	service.poll = function() {
 		
-		$http({method: 'GET', url: servicesRoot+'/user'})
+		$http({method: 'GET', url: servicesRoot+'/user?'})
 		
 		.success(function(data, status, headers) {
 			if (status == 200 && data.hasOwnProperty('identifier') && data.hasOwnProperty('displayName')) service.user = data;
