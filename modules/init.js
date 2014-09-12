@@ -207,6 +207,30 @@ module.exports = function(callbackurl, port, config){
 			}			
 		});
 	};
+
+	/*
+	 * ajax authenticate
+	 */
+	function authFnc(req, res) {
+	return function authAjax(err, user) {
+      //if (req.xhr) {
+        //thanks @jkevinburton
+        if (err)   { return res.json({ error: err.message }); }
+        if (!user) { return res.json({error : "Invalid Login"}); }
+        req.login(user, {}, function(err) {
+          if (err) { return res.json({error:err}); }
+          return res.json({ user: req.user, success: true}).redirect('/');
+        });
+      // } else {
+      //   if (err)   { return res.redirect('/login'); }
+      //   if (!user) { return res.redirect('/login'); }
+      //   req.login(user, {}, function(err) {
+      //     if (err) { return res.redirect('/login'); }
+      //     return res.redirect('/');
+      //   });
+      // }
+    }
+	}
 	
 
 	/*
@@ -223,7 +247,7 @@ module.exports = function(callbackurl, port, config){
 	});	
 	
 	// routes for local login
-	app.post('/login', 					passport.authenticate('local',		{successRedirect: '/', failureRedirect: '/login'}));
+	app.post('/login', 	function(req, res) { passport.authenticate('local', authFnc(req, res))(req, res) } );
 
 	// configure passport routes for google login (you need scopes here, not documented on library github site)
 	app.get(config.google.authRoute, 	passport.authenticate('google', 	{scope: 'https://www.googleapis.com/auth/plus.login'}));
