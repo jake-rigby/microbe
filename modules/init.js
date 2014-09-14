@@ -65,7 +65,7 @@ module.exports = function(callbackurl, port, config){
 					redisClient.set('user:'+username, JSON.stringify(user));
 					return done(null, user);
 				}
-				if (user.password != password) return done(null, false,'Incorrect password');
+				if (user.password != password) return done('Incorrect password', false);
 				return done(null, user);
 			})
 		})
@@ -207,30 +207,6 @@ module.exports = function(callbackurl, port, config){
 			}			
 		});
 	};
-
-	/*
-	 * ajax authenticate
-	 */
-	function authFnc(req, res) {
-	return function authAjax(err, user) {
-      //if (req.xhr) {
-        //thanks @jkevinburton
-        if (err)   { return res.json({ error: err.message }); }
-        if (!user) { return res.json({error : "Invalid Login"}); }
-        req.login(user, {}, function(err) {
-          if (err) { return res.json({error:err}); }
-          return res.json({ user: req.user, success: true}).redirect('/');
-        });
-      // } else {
-      //   if (err)   { return res.redirect('/login'); }
-      //   if (!user) { return res.redirect('/login'); }
-      //   req.login(user, {}, function(err) {
-      //     if (err) { return res.redirect('/login'); }
-      //     return res.redirect('/');
-      //   });
-      // }
-    }
-	}
 	
 
 	/*
@@ -247,7 +223,7 @@ module.exports = function(callbackurl, port, config){
 	});	
 	
 	// routes for local login
-	app.post('/login', 	function(req, res) { passport.authenticate('local', authFnc(req, res))(req, res) } );
+	app.post('/login', function(req, res, next) { passport.authenticate('local', authAjax(req, res))(req, res, next) } );
 
 	// configure passport routes for google login (you need scopes here, not documented on library github site)
 	app.get(config.google.authRoute, 	passport.authenticate('google', 	{scope: 'https://www.googleapis.com/auth/plus.login'}));
@@ -269,6 +245,24 @@ module.exports = function(callbackurl, port, config){
 			res.send(null,401);
 	});
 
+
+	/*
+	 * ajax authenticate, do not add a redirect or the data in the ajax response will be the html string for the redirect
+	 */
+	function authAjax(req, res) {
+		return function (err, user) {
+			if (err) {
+				return res.status(401).send(err);
+			}
+			if (!user) { 
+				return res.status(401).send('User not found'); 
+			}
+			req.login(user, {}, function(err) {
+				if (err) { return res.json({error:err}); }
+				return res.status(200).json(req.user);
+			});
+		}
+	}
 
 	/*
 	 * go

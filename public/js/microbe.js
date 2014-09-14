@@ -2,80 +2,90 @@ angular.module('microbe', [])
 
 .factory('UserService', function($http, $q, $window) {
 
-	var service = {user:null},
-		deferred = $q.defer();
+	var service = {},
+		user;
 
 	service.login = function(username, password) {
-		$http({
+		var deferred = $q.defer();
+		if (user) deferred.resolve(user);
+		else $http({
 			method: 'post',
-			url: servicesRoot+"/login",
+			url: servicesRoot+'/login',
 			params: {
 				username: username,
 				password: password
 			}
 		}).success(function(data, status, headers, config) {
-			$window.sessionStorage["user"] = JSON.stringify(data.user);
-			service.user = data.user;
-			deferred.resolve(data.user);
+			user = data;
+			deferred.resolve(data);
 		}).error(function(data, status, headers, config) {
-			deferred.reject(data);
+			deferred.reject({ authenticated: false, message: data});
 		});
-		return deferred.promise
+		return deferred.promise;
 	}
 
 	service.logout = function() {
 		var deferred = $q.defer();
 		$http({
-			method: "GET",
-			url: '/logout',
-			/*headers: {
-				"access_token": service.user.accessToken
-			}*/
+			method: 'get',
+			url: servicesRoot+'/logout'
 		}).then(function(result) {
-			$window.sessionStorage["user"] = null;
-			service.user = null;
+			user = null;
 			deferred.resolve(result);
 		}, function(error) {
 			deferred.reject(error);
 		});
-
 		return deferred.promise;
 	}
 
-	service.refresh = function() {
-		if (service.user) return service.user;
+	service.getUser = function() {
 		var deferred = $q.defer();
-		$http({
-			method:"GET",
-			url: '/user'
+		if (user) deferred.resolve(user); 
+		else $http({
+			method: 'get',
+			url: servicesRoot+'/user'
 		}).success(function(data, status, headers, config) {
-			$window.sessionStorage["user"] = null;
-			service.user = data;
+			user = data;
 			deferred.resolve(data);
 		}).error(function(data, status, headers, config) {
-			console.log('no user');
+			deferred.reject({ authenticated: false });
 		})
-	}
-
-	if ($window.sessionStorage["user"]) {
-		try { service.user = JSON.parse($window.sessionStorage["user"]) } catch (e) { service.user = null; }
+		return deferred.promise;
 	}
 
 	return service;
 })
 
-.controller('UserController', function($scope, UserService) {
+.controller('UserController', function($scope, UserService, $location) {
 
-	UserService.refresh();
-
-	$scope.$watch(function(){
-		return UserService.user;
-	}, function(user) {
+	UserService.getUser().then(function(user) { 
 		$scope.user = user;
-	}, true);
+		if (user &&  $location.url() == '/login') $location.url('/');	
+	});
 
-	$scope.login = UserService.login;
-	$scope.logout = UserService.logout;
+	$scope.login = function(username, password) {
+		$scope.loginError = null;
+		UserService.login(username, password)
+		.then(function(user) {
+			if (user) $location.url('/');
+		})
+		.catch(function(err) {
+			$scope.loginError = err.message;
+			$scope.password = '';
+		})
+	}
+
+	$scope.logout = function() {
+		$scope.logoutError = null;
+		UserService.logout()
+		.then(function() {
+			$location.url('/login');
+			$scope.user = null
+		})
+		.catch(function(err) {
+			$scope.logoutError = err;
+		})
+	}	
 })
 
 .factory('socket.io', ['$rootScope', function($rootScope) {
@@ -125,40 +135,3 @@ angular.module('microbe', [])
 	return service;	
 }])
 
-.filter('orderObjectBy', function(){
-	return function(input, attribute, reverse) {
-		if (!angular.isObject(input)) return input;
-		var array = [];
-		for(var objectKey in input) {
-			array.push(input[objectKey]);
-		}
-		array.sort(function(a, b){
-			a = parseInt(a[attribute]);
-			b = parseInt(b[attribute]);
-			return reverse ? a - b : b - a;
-		});
-		return array;
-	}
-})
-
-
-
-.filter('trunc', function() {
-
-	return function(d) {
-		/*
-		var a = function(data, depth) {
-			if (Array.isArray(data) || Object.prototype.toString.call(data) == '[object Object]') {
-				for (var p in data) {
-					if (depth > 2) {
-						data[p] = Object.prototype.toString.call(data[p]);
-					} else {
-						a(data, depth++);
-					}
-				}
-			}
-		}
-		a(d,0);*/
-		return angular.toJSON(d,true);
-	}
-})
