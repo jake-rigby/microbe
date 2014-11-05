@@ -124,9 +124,7 @@ console.log('app running at', url);
 		</div>
 
 		<!-- include the microbe angularjs tools -->
-		<script type="text/javascript" src="js/microbe.services.js"></script>
-		<script type="text/javascript" src="js/microbe.controllers.js"></script>
-		<script type="text/javascript" src="js/microbe.filters.js"></script>
+		<script type="text/javascript" src="js/microbe.js"></script>
 
 
 		<script type="text/javascript">
