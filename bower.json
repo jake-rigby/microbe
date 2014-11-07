@@ -1,0 +1,21 @@
+{
+  "name": "microbe",
+  "main": "public/js/microbe.js",
+  "version": "3.0.1",
+  "homepage": "https://github.com/jake-rigby/microbe",
+  "authors": [
+    "Jake Rigby <jakewigby@gmail.com>"
+  ],
+  "description": "Hooks up express js, passport.io, socket.io and redis. Requires Redis server. Exposes method to add socket.io api's",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
