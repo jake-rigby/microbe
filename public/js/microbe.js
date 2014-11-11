@@ -1,5 +1,4 @@
 angular.module('microbe', [])
-
 .factory('UserService', function($http, $q, $window) {
 
 	var service = {},
@@ -55,7 +54,6 @@ angular.module('microbe', [])
 
 	return service;
 })
-
 .controller('UserController', function($scope, UserService, $location) {
 
 	UserService.getUser().then(function(user) { 
@@ -87,7 +85,6 @@ angular.module('microbe', [])
 		})
 	}	
 })
-
 .factory('socket.io', ['$rootScope', function($rootScope) {
 
 	// the default namespace
@@ -106,7 +103,6 @@ angular.module('microbe', [])
 	return socket;
 
 }])
-
 .factory('socket.io.ns', ['$rootScope', function($rootScope) {
 
 	var service = {},
@@ -133,5 +129,4 @@ angular.module('microbe', [])
 	}
 
 	return service;	
-}])
-
+}]);
