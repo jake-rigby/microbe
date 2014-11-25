@@ -1,4 +1,7 @@
 angular.module('microbe', [])
+.factory('io', function($window) {
+	return $window.io;
+})
 .factory('UserService', function($http, $q, $window) {
 
 	var service = {},
@@ -85,7 +88,7 @@ angular.module('microbe', [])
 		})
 	}	
 })
-.factory('socket.io', ['$rootScope', function($rootScope) {
+.factory('socket.io', ['$rootScope','io', function($rootScope, io) {
 
 	// the default namespace
 	var socket = io.connect(servicesRoot ? servicesRoot:'');
@@ -103,7 +106,7 @@ angular.module('microbe', [])
 	return socket;
 
 }])
-.factory('socket.io.ns', ['$rootScope', function($rootScope) {
+.factory('socket.io.ns', ['$rootScope', 'io', function($rootScope, io) {
 
 	var service = {},
 		nsSockets = {};
@@ -127,6 +130,5 @@ angular.module('microbe', [])
 
 		return nsSocket;
 	}
-
 	return service;	
 }]);
