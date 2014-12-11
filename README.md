@@ -7,29 +7,50 @@ Use passport.js to authenticate a user in an express app, include their credenti
 
 npm install microbe
 
+### config.json
+
+Set up your accounts and export the details to look like this. the field names were chosen to match the exported names at the timeof writing, but best to check.
+
+```json
+{
+	"redis": {
+		"host" : "127.0.0.1",
+		"port" : "6379",
+		"pass" : ""
+	},
+	"google": {
+		"client_secret":"secretsecretsecretsecret",
+		"client_id":"clientidclientidclientid",
+		"authRoute": "/auth/google",
+		"callback": "/oauth2callback"
+	},
+	"facebook": {
+		"id": "clientidclientidclientid",
+		"secret": "secretsecretsecretsecret",
+		"authRoute": "/auth/facebook",
+		"callback": "/auth/facebook/callback"
+	},
+	"twitter": {
+		"key": "clientidclientidclientid",
+		"secret": "secretsecretsecretsecret",
+		"authRoute": "/auth/twitter",
+		"callback": "/auth/twitter/callback"
+	}	
+}
+
+```
 ##server
 
 ```javascript
-var microbe = require('../../microbe'),
-	
-	redisConfig = {
-		host: "127.0.0.1",
-		port: 6379
-	},
 
-	fbConfig = {
-		"name" : "fb-app-name",
-		"id" : "fb-app-id",
-		"secret" : "fb-app-secret"
-	},
 
-	redis = require('redis').createClient(redisConfig.port, redisConfig.host, {no_ready_check: true}),
+var 	microbe = require('microbe'),
+	redis = require('redis').createClient(config.redis.port, config.redis.host, {no_ready_check: true}),
 	port = process.env.PORT ? process.env.PORT : 8080,
-	url = process.env.URL ? process.env.URL : 'http://'+require('../../microbe').utils.myip()+':'+port;
-	app = microbe.init(url, port, redisConfig, fbConfig);
+	url = process.env.URL ? process.env.URL : 'http://your.domain:'+port;
+	app = microbe.init(url, port, config);
 
-app.use(microbe.express.static('./client'));
-app.use(microbe.express.static('../public'));
+app.use(microbe.express.static('path/to/client/www'));
 
 app.add(function(socket, user) {
 
@@ -37,110 +58,63 @@ app.add(function(socket, user) {
 		console.log(user.displayName, 'says hello,', message);
 		socket.emit('hello','back at you');
 	})
-});
+}, '/namespace-for-this-api');
 
-console.log('app running at', url);
-
- 
 ```
 
-##client
-```html
-<!DOCTYPE html>
-<html ng-app="microbe-example">
-	<head>
+## client login
 
-		<meta charset="utf-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=9" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+Here's an example of how to use the UserController (the markup is Bootstrap 3)
 
-		<title>microbe-example</title>
-		
-		<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap-rtl.css">
-		<style type="text/css">
-			ul {
-				list-style-type: none;
-			}
-		</style>
-
-		<!-- load angular script in head to allow ng-cloak to work-->
-		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.1/angular.min.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.1/angular-route.min.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.1/angular-sanitize.min.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.1/angular-animate.min.js"></script>
-
-		<!-- socket.io -->
-		<script src="https://cdn.socket.io/socket.io-1.0.4.js"></script>
-
-	</head>
-
-	<body ng-controller="UserController">
-		
-		<!-- login controls -->
-		<div class="container padtop" ng-cloak ng-show="!user" >
-			<div class="row">
-				
-				<div class="col-xs-12">
-					<h1 class="">Sign in</h1>
-
-					<!-- use /auth/google for google login -->
-					<a class="text-lg" href="/auth/google" >Google</a>,
-
-					<!-- use auth/facebook for facebook login -->
-					<a class="text-lg" href="/auth/facebook" >Facebook</a>
-
-				</div>
-			</div>
-			<div class="row pad">
-				<div class="col-xs-6">
-
-					<!-- use /login for local login/signup -->
-					<form role="form" class="form" action="/login" method="post">
-						<div class="form-group">
-							<input name="username" id="em" type="text" class="form-control" placeholder="Enter email">
-						</div>
-						<div class="form-group">
-							<input name="password" id="pw" type="password" class="form-control" placeholder="Password">
-						</div>
-						<button type="submit" class="btn btn-default">login/signup</button>
-					</form>
-					
-				</div>
-			</div>
+``` html
+<div class="container ng-cloak center" ng-controller="UserController">
+	<form role="form" class="form" ng-submit="login(username, password)">
+		<div class="form-group">
+			<div ng-show="!loginError">Log in or enter your guest credentials (taken user names will result in incorrect password)</div>
+			<div ng-show="loginError" class="text-danger"> {{loginError}}</div>
+			<div ng-show="logoutError" class="text-danger"> {{logoutError}}</div>
 		</div>
-
-		<!-- main view -->
-		<div class="container" ng-show="user" ng-cloak >
-			<ul>
-				<li ng-repeat="(key,value) in user"><h3>{{key}}:{{value}}</h3></li>
-			</ul>
+		<div class="form-group">
+			<input name="username" id="em" type="text" class="form-control" placeholder="username" ng-model="username">
 		</div>
-
-		<div class="navbar-fixed-bottom" ng-cloak ng-show="user">
-			<div class="pull-left">
-				{{user.displayName}}
-				<a ng-click="logout()">logout</a>
-			</div>
+		<div class="form-group">
+			<input name="password" id="pw" type="password" class="form-control" placeholder="password" ng-model="password">
 		</div>
+		<button type="submit" class="btn btn-default">sign in</button>			
+		<div class="form-group text-right">
+			<a class="text-lg" href="/auth/google" ng-click="loggingIn=true" >google</a>
+			<a class="text-lg" href="/auth/facebook" ng-click="loggingIn=true">facebook</a>
+			<a class="text-lg" href="/auth/twitter" ng-click="loggingIn=true" >twitter</a>
+		</div>
+	</form>
+</div>
 
-		<!-- include the microbe angularjs tools -->
-		<script type="text/javascript" src="js/microbe.js"></script>
+```
 
+## socket api
 
-		<script type="text/javascript">
+If the api was namespaced in the server :
 
-			// blank for website served from the app, service url for a packaged app
-			var servicesRoot = '';
+``` js
+.controller('Cntrl', ['socket.io.ns', function(socketions) {
+	
+	var socket = socketions.get('/namespace-for-this-api');
+	
+	socket.on('my-api', function(data) {
+		// stuff with data
+	});
+	
+}]);
+```
 
-			angular.module('microbe-example',[
-				'ngRoute',
-				'microbe.services',
-				'microbe.controllers',
-				'microbe.filters'
-			])
+or use the default namespace (these services will be merged and renamed in future version)
 
-		</script>
-
-	</body>
-</html>
+``` js
+.controller('Cntrl', ['socket.io', function(socketio) {
+	
+	socketio.on('my-api', function(data) {
+		// stuff with data
+	});
+	
+}]);
 ```
