@@ -226,16 +226,16 @@ module.exports = function(callbackurl, port, config){
 	app.post('/login', function(req, res, next) { passport.authenticate('local', authAjax(req, res))(req, res, next) } );
 
 	// configure passport routes for google login (you need scopes here, not documented on library github site)
-	app.get(config.google.authRoute, 	passport.authenticate('google', 	{scope: 'https://www.googleapis.com/auth/plus.login'}));
-	app.get(config.google.callback, 	passport.authenticate('google',		{successRedirect:'/',failureRedirect:'/login'}));
+	if (config.google) app.get(config.google.authRoute, 	passport.authenticate('google', 	{scope: 'https://www.googleapis.com/auth/plus.login'}));
+	if (config.google) app.get(config.google.callback, 	passport.authenticate('google',		{successRedirect:'/',failureRedirect:'/login'}));
 	
 	// routes for facebook login
-	app.get(config.facebook.authRoute, 	passport.authenticate('facebook'));
-	app.get(config.facebook.callback, 	passport.authenticate('facebook', 	{ successRedirect: '/', failureRedirect: '/login' }));
+	if (config.facebook) app.get(config.facebook.authRoute, 	passport.authenticate('facebook'));
+	if (config.facebook) app.get(config.facebook.callback, 	passport.authenticate('facebook', 	{ successRedirect: '/', failureRedirect: '/login' }));
 
 	// routes for twitter login
-	app.get(config.twitter.authRoute, 	passport.authenticate('twitter'));
-	app.get(config.twitter.callback, 	passport.authenticate('twitter', 	{successRedirect: '/', failureRedirect: '/login'}));
+	if (config.twitter) app.get(config.twitter.authRoute, 	passport.authenticate('twitter'));
+	if (config.twitter) app.get(config.twitter.callback, 	passport.authenticate('twitter', 	{successRedirect: '/', failureRedirect: '/login'}));
 
 	// add a route to get the user // 401 is not authorised
 	app.get('/user', function (req, res) {
