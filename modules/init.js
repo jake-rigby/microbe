@@ -2,10 +2,18 @@ module.exports = function(callbackurl, port, config){
 
 	var ip = require(__dirname+'/utils').myip();
 	if (callbackurl.indexOf('http://'+ip) != 0) {
-		console.info('[MICROBE] for dev, ensure the following line is in C:\\Windows\\System32\\drivers\\etc');
+		console.info("______________________________________________________________________________");
+		console.info("");
+		console.info('[MICROBE] for dev add this to your hosts: C:\\Windows\\System32\\drivers\\etc');
 		console.info("");
 		console.info("   \""+ip+"  "+callbackurl.split('//')[1].split(':')[0]+"\"");
 		console.info("");
+		console.info("For Oauth2 (Google) login : ");
+		console.info("");
+		console.info("	Javascript origin : "+callbackurl);
+		console.info("	Redirect uri : "+callbackurl+"/oauth2callback");
+		console.info("");
+		console.info("______________________________________________________________________________");
 	}
 
 
