@@ -235,7 +235,10 @@ module.exports = function(callbackurl, port, config){
 	app.post('/login', function(req, res, next) { passport.authenticate('local', authAjax(req, res))(req, res, next) } );
 
 	// configure passport routes for google login (you need scopes here, not documented on library github site)
-	if (config.google) app.get(config.google.authRoute, 	passport.authenticate('google', 	{scope: 'https://www.googleapis.com/auth/plus.login'}));
+	if (config.google) app.get(config.google.authRoute, 	passport.authenticate('google', 	{scope: ['https://www.googleapis.com/auth/userinfo.profile',
+																										 'https://www.googleapis.com/auth/userinfo.email',
+																										 'https://www.googleapis.com/auth/plus.login']
+																										}));
 	if (config.google) app.get(config.google.callback, 	passport.authenticate('google',		{successRedirect:'/',failureRedirect:'/login'}));
 	
 	// routes for facebook login
