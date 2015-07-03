@@ -1,6 +1,8 @@
 Microbe
 =========
 
+This project uses cookies for client authentication. If you'd prefer json web tokens, and more up to date code, check out my other project [orf](https://github.com/jake-rigby/orf)
+
 Use passport.js to authenticate a user in an express app, include their credentials in the session on the socket.io socket
 
 ## install
